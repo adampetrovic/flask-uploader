@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>jQuery File Upload Example</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/jquery.ui.widget.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.iframe-transport.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.fileupload.js') }}"></script>
+</head>
+<body>
+
+    <form id="form" enctype="multipart/form-data">
+        <input type="text" id="message" name="message">
+        <input id="fileupload" type="file" name="files[]" data-url="/upload/" multiple>
+        <input type="submit" id="submit" value="Submit">
+    </form>
+
+    <script>
+    $(function () {
+        $('#form').fileupload({
+            dataType: 'json',
+            singleFileUploads: false,
+            forceIframeTransport: true,
+            url: '/upload/',
+            add: function (e, data) {
+                console.log(e, data);
+                $('#submit').on('click', function(e) {
+                    e.preventDefault();
+                    data.formData = $('#form').serializeArray();
+                    data.submit();
+                });
+            },
+            done: function (e, data) {
+                console.log('done uploading');
+            }
+        });
+    });
+    </script>
+</body> 
+</html>
