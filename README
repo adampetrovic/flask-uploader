@@ -1,0 +1,9 @@
+Start a virtualenv: virtualenv .
+Activate it: source bin/activate
+Install the pip requirements: pip install -r requirements.txt
+Run the Flask server: python manage.py runserver
+
+In your browser, visit http://localhost:5002/, and upload.
+You will receive a JSON response with a key to the URL of the upload on S3.
+You can download your file by visiting http://localhost:5002/download/<key> (i.e. http://localhost:5002/download/abc123/test.zip).
+The download will give you a temporary access key for downloading the file off S3, which expires after 60 seconds.
