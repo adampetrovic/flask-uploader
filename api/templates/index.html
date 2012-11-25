@@ -2,40 +2,84 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>jQuery File Upload Example</title>
+    <title>Flask Uploader</title>
+    
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/jquery.fileupload-ui.css') }}" rel="stylesheet">
+
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='js/jquery.ui.widget.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.iframe-transport.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.fileupload.js') }}"></script>
 </head>
 <body>
+    
+    <div class="container">
+        <div class="well">
+            <form style="margin: 0px;" id="form-upload" enctype="multipart/form-data">
+                <div class="row-fluid">
+                    <div class="reply-control-group control-group">
+                        <textarea id="reply-text" name="message" style="width: 98%;" rows="3"></textarea> 
+                        <div class="reply-spinner pull-right" style="display: none;"><p><img src="/img/throbber_horizontal.gif" /></p></div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <span class="btn btn-success fileinput-button">
+                        <i class="icon-plus icon-white"></i>
+                        <span>Add Files...</span>
+                        <input id="fileupload" type="file" name="files[]" multiple>   
+                    </span>
+                    <span class="files">
+                    </span>
+                    <a class="btn btn-primary pull-right thread-reply" href="#"><i class="icon-share-alt icon-white"></i>Reply</a>
+                </div>
+            </form>
+        </div>
 
-    <form id="form" enctype="multipart/form-data">
-        <input type="text" id="message" name="message">
-        <input id="fileupload" type="file" name="files[]" data-url="/upload/" multiple>
-        <input type="submit" id="submit" value="Submit">
-    </form>
 
-    <script>
-    $(function () {
-        $('#form').fileupload({
-            dataType: 'json',
-            singleFileUploads: false,
-            forceIframeTransport: true,
-            url: '/upload/',
-            add: function (e, data) {
-                console.log(e, data);
-                $('#submit').on('click', function(e) {
-                    e.preventDefault();
-                    data.formData = $('#form').serializeArray();
-                    data.submit();
+        <script>
+            $(function () {
+                
+                var added_files = [];
+                var submitted = false;
+                $('#form-upload').fileupload({
+                    dataType: 'json',
+                    singleFileUploads: false,
+                    forceIframeTransport: true,
+                    url: '/upload/',
+                    add: function (e, data) {
+                        console.log('add', data);
+                        added_files.push(data);
+                    
+                        $('.thread-reply').unbind('click');    
+                        $('.thread-reply').on('click', function(e) {
+                            e.preventDefault();
+                            data.formData = $('#form-upload').serializeArray();
+                            var original_data = data;
+                            var new_data = {files: [], originalFiles: [], paramName: []};
+                            jQuery.each(added_files, function(index, file) {
+                                new_data['files'] = jQuery.merge(new_data['files'], file.files);
+                                new_data['originalFiles'] = jQuery.merge(new_data['originalFiles'], file.originalFiles);
+                                new_data['paramName'] = jQuery.merge(new_data['paramName'], file.paramName);
+                            });
+                            new_data = jQuery.extend({}, original_data, new_data);
+                            console.log(new_data);
+                            new_data.submit();
+                        });
+                    },
+                    submit: function (e, data) {
+                        console.log('submitted');
+                    },
+                    done: function (e, data) {
+                        console.log('done uploading');
+                    },
+                    send: function (e, data) {
+                        console.log('sending');
+                    }
                 });
-            },
-            done: function (e, data) {
-                console.log('done uploading');
-            }
-        });
-    });
-    </script>
+            });
+        </script>
+    </div>
 </body> 
 </html>
